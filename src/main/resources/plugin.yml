@@ -1,0 +1,43 @@
+name: Nowhere
+version: 1.1
+main: tg.lepsima.nowhere.Main
+api-version: 1.21
+description: Nowhere
+
+permissions:
+  nowhere.bypass:
+    description: Allows place and destroy access to the nowhere dimension
+    default: op
+
+commands:
+  guidebook:
+    description: Gives the player the server's guide book
+    usage: /guidebook
+
+  chatcolor:
+    description: Changes your color in the chat
+    usage: /chatcolor
+
+  joinevent:
+    description: Participate in the event
+    usage: /joinevent
+
+  leaveevent:
+    description: Leave the event
+    usage: /leaveevent
+
+  getenterkey:
+    usage: /getenterkey
+    permission: op
+
+  getexitkey:
+    usage: /getexitkey
+    permission: op
+
+  tpnowhere:
+    usage: /tpnowhere
+    permission: op
+
+  tpworld:
+    usage: /tpworld
+    permission: op
