@@ -14,14 +14,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import tg.lepsima.nowhere.Nowhere;
 import tg.lepsima.nowhere.TGCommand;
 
-public class ExitItemCommand extends TGCommand implements CommandExecutor {
-    private final Plugin plugin;
+import java.util.List;
 
-    public ExitItemCommand(String command, Plugin plugin) {
+public class ExitItemCommand extends TGCommand implements CommandExecutor {
+    public ExitItemCommand(String command) {
         super(command);
-        this.plugin = plugin;
     }
 
     @Override
@@ -31,20 +31,9 @@ public class ExitItemCommand extends TGCommand implements CommandExecutor {
             return true;
         }
 
-        ItemStack item = new ItemStack(Material.WRITTEN_BOOK);
-        ItemMeta meta = item.getItemMeta();
-
-        meta.displayName(Component.text("Exit Key")
-                .color(NamedTextColor.GOLD)
-                .decoration(TextDecoration.ITALIC, false));
-
-        meta.setItemModel(new NamespacedKey("minecraft", "barrier"));
-
-        NamespacedKey key = new NamespacedKey(plugin, "exit_key");
-        meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, 1);
-        item.setItemMeta(meta);
-
+        ItemStack item = Nowhere.generateKey("Exit Key", Material.WRITTEN_BOOK, "barrier", "exit_key");
         Player player = Bukkit.getPlayer(args[0]);
+
         if (player != null) {
             player.getInventory().addItem(item);
         }

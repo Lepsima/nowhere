@@ -1,8 +1,13 @@
 package tg.lepsima.nowhere;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -21,6 +26,7 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Nowhere implements Listener {
@@ -30,7 +36,6 @@ public class Nowhere implements Listener {
     private final NamespacedKey enterKey;
     private final NamespacedKey exitKey;
     private final Cooldown cooldown = new Cooldown(2000);
-
 
     public Nowhere(Plugin plugin) {
         enterKey = new NamespacedKey(plugin, "enter_key");
@@ -45,58 +50,77 @@ public class Nowhere implements Listener {
         return !player.hasPermission(BYPASS_PERMISSION);
     }
 
+    public static ItemStack generateKey(String name, Material material, String model, String code) {
+        ItemStack item = new ItemStack(material);
+        ItemMeta meta = item.getItemMeta();
+
+        // Set name
+        meta.displayName(Component.text(name)
+                .color(NamedTextColor.GOLD)
+                .decoration(TextDecoration.ITALIC, false));
+
+        // Set lore
+        meta.lore(List.of(
+                Component.text("", NamedTextColor.DARK_PURPLE),
+                Component.text("Right-click to use", NamedTextColor.DARK_PURPLE)
+        ));
+
+        // Set model
+        meta.setItemModel(new NamespacedKey("minecraft", model));
+
+        // Set custom tag
+        NamespacedKey key = new NamespacedKey("nowhere", code);
+        meta.getPersistentDataContainer().set(key, PersistentDataType.INTEGER, 1);
+        item.setItemMeta(meta);
+
+        return item;
+    }
+
     // region - Dimension Restrictions -
-    @EventHandler
-    public void onElytraFly(EntityToggleGlideEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-
+    private void cancelNowhereEvent(Player player, Cancellable event) {
         if (isNowhere(player)) {
-            if (event.isGliding()) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onPearl(PlayerTeleportEvent event) {
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.ENDER_PEARL) {
-            if (isNowhere(event.getPlayer())) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler
-    public void onRiptide(PlayerRiptideEvent event) {
-        if (isNowhere(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void onVehicleEnter(VehicleEnterEvent event) {
-        if (event.getEntered() instanceof Player player) {
-            if (isNowhere(player)) {
-                event.setCancelled(true);
-            }
+    public void onElytraFly(EntityToggleGlideEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+
+        if (event.isGliding()) {
+            cancelNowhereEvent(player, event);
         }
     }
 
     @EventHandler
+    public void onPearl(PlayerTeleportEvent event) {
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL) return;
+        cancelNowhereEvent(event.getPlayer(), event);
+    }
+
+    @EventHandler
+    public void onRiptide(PlayerRiptideEvent event) {
+        cancelNowhereEvent(event.getPlayer(), event);
+    }
+
+    @EventHandler
+    public void onVehicleEnter(VehicleEnterEvent event) {
+        if (!(event.getEntered() instanceof Player player)) return;
+        cancelNowhereEvent(player, event);
+    }
+
+    @EventHandler
     public void onTeleport(PlayerTeleportEvent event) {
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.CONSUMABLE_EFFECT) {
-            if (isNowhere(event.getPlayer())) {
-                event.setCancelled(true);
-            }
-        }
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.CONSUMABLE_EFFECT) return;
+        cancelNowhereEvent(event.getPlayer(), event);
     }
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
 
-        if(isRestricted(player) && isNowhere(player)) {
-            event.setCancelled(true);
+        if(isRestricted(player)) {
+            cancelNowhereEvent(player, event);
         }
     }
 
@@ -104,18 +128,15 @@ public class Nowhere implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
 
-        if(isRestricted(player) && isNowhere(player)) {
-            event.setCancelled(true);
+        if(isRestricted(player)) {
+            cancelNowhereEvent(player, event);
         }
     }
 
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-
-        if (isNowhere(player)) {
-            event.setCancelled(true);
-        }
+        cancelNowhereEvent(player, event);
     }
     // endregion
 

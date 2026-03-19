@@ -32,8 +32,8 @@ public class Main extends JavaPlugin implements Listener {
                 new LeaveEventCommand(LEAVE_EVENT_CMD),
                 new TpNowhereCommand(TP_NOWHERE_CMD),
                 new TpWorldCommand(TP_WORLD_CMD),
-                new EnterItemCommand(ENTER_KEY_CMD,this),
-                new ExitItemCommand(EXIT_KEY_CMD, this)
+                new EnterItemCommand(ENTER_KEY_CMD),
+                new ExitItemCommand(EXIT_KEY_CMD)
         };
 
         for (TGCommand command : commands) {
