@@ -20,6 +20,16 @@ public class JoinEventCommand extends TGCommand implements CommandExecutor {
         }
 
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join unknown " + player.getName());
+
+        // if (CHECK IF PLAYER HAS DONE INTRO)
+        sayIntroPrompt(player.getName());
+        // endif
+
         return true;
+    }
+
+    private void sayIntroPrompt(String player) {
+        String introPrompt = " [\"\",{\"text\":\"[\",\"color\":\"dark_gray\"},{\"text\":\"------\",\"color\":\"dark_gray\",\"obfuscated\":true},{\"text\":\"] >\",\"color\":\"dark_gray\"},\" Do \",{\"text\":\"---\",\"obfuscated\":true},\" want to begin¿ \",{\"text\":\"<yes>\",\"bold\":true,\"color\":\"gold\",\"click_event\":{\"action\":\"run_command\",\"command\":\"/introevent\"}}]";
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw " + player + introPrompt);
     }
 }

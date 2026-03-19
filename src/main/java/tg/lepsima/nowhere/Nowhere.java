@@ -33,20 +33,23 @@ public class Nowhere implements Listener {
     public static final String DIMENSION = "world_nowhere_nowhere";
     public static final String BYPASS_PERMISSION = "nowhere.bypass";
 
+    public static Nowhere Instance;
+
     private final NamespacedKey enterKey;
     private final NamespacedKey exitKey;
     private final Cooldown cooldown = new Cooldown(2000);
 
     public Nowhere(Plugin plugin) {
+        Nowhere.Instance = this;
         enterKey = new NamespacedKey(plugin, "enter_key");
         exitKey = new NamespacedKey(plugin, "exit_key");
     }
 
-    private static boolean isNowhere(Player player) {
+    public static boolean isNowhere(Player player) {
         return player.getWorld().getName().equals(DIMENSION);
     }
 
-    private static boolean isRestricted(Player player) {
+    public static boolean isRestricted(Player player) {
         return !player.hasPermission(BYPASS_PERMISSION);
     }
 
