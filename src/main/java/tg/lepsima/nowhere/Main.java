@@ -17,6 +17,7 @@ public class Main extends JavaPlugin implements Listener {
     public static final String EXIT_KEY_CMD = "getexitkey";
     public static final String TP_NOWHERE_CMD = "tpnowhere";
     public static final String TP_WORLD_CMD = "tpworld";
+    public static final String INTRO_EVENT_CMD = "introevent";
 
     private final Nowhere nowhere = new Nowhere(this);
 
@@ -33,7 +34,8 @@ public class Main extends JavaPlugin implements Listener {
                 new TpNowhereCommand(TP_NOWHERE_CMD),
                 new TpWorldCommand(TP_WORLD_CMD),
                 new EnterItemCommand(ENTER_KEY_CMD),
-                new ExitItemCommand(EXIT_KEY_CMD)
+                new ExitItemCommand(EXIT_KEY_CMD),
+                new IntroEventCommand(INTRO_EVENT_CMD)
         };
 
         for (TGCommand command : commands) {

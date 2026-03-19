@@ -34,6 +34,7 @@ public class Nowhere implements Listener {
     public static final String BYPASS_PERMISSION = "nowhere.bypass";
 
     public static Nowhere Instance;
+    public static Plugin Plugin;
 
     private final NamespacedKey enterKey;
     private final NamespacedKey exitKey;
@@ -41,10 +42,12 @@ public class Nowhere implements Listener {
 
     public Nowhere(Plugin plugin) {
         Nowhere.Instance = this;
+        Nowhere.Plugin = plugin;
         enterKey = new NamespacedKey(plugin, "enter_key");
         exitKey = new NamespacedKey(plugin, "exit_key");
     }
 
+    //region - Functions -
     public static boolean isNowhere(Player player) {
         return player.getWorld().getName().equals(DIMENSION);
     }
@@ -54,7 +57,7 @@ public class Nowhere implements Listener {
     }
 
     public static ItemStack generateKey(String name, Material material, String model, String code) {
-        ItemStack item = new ItemStack(material);
+        ItemStack item = ItemStack.of(material);
         ItemMeta meta = item.getItemMeta();
 
         // Set name
@@ -78,6 +81,7 @@ public class Nowhere implements Listener {
 
         return item;
     }
+    //endregion
 
     // region - Dimension Restrictions -
     private void cancelNowhereEvent(Player player, Cancellable event) {

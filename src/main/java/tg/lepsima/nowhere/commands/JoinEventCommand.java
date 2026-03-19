@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import tg.lepsima.nowhere.IntroEvent;
 import tg.lepsima.nowhere.TGCommand;
 
 public class JoinEventCommand extends TGCommand implements CommandExecutor {
@@ -21,9 +22,9 @@ public class JoinEventCommand extends TGCommand implements CommandExecutor {
 
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team join unknown " + player.getName());
 
-        // if (CHECK IF PLAYER HAS DONE INTRO)
-        sayIntroPrompt(player.getName());
-        // endif
+        if (IntroEvent.isCompleteBy(player.getName())) {
+            sayIntroPrompt(player.getName());
+        }
 
         return true;
     }

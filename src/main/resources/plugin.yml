@@ -26,6 +26,9 @@ commands:
     description: Leave the event
     usage: /leaveevent
 
+  introevent:
+    usage: /introevent
+
   getenterkey:
     usage: /getenterkey
     permission: op
