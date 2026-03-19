@@ -124,20 +124,28 @@ public class Nowhere implements Listener {
     public void onUse(PlayerInteractEvent event) {
         if (event.getItem() == null) return;
 
+        // Skip items without meta
         ItemStack item = event.getItem();
-        if (!item.hasItemMeta() || item.getType() != Material.WRITTEN_BOOK) return;
+        if (!item.hasItemMeta()) return;
 
+        // Get data
         Player player = event.getPlayer();
-        BookMeta meta = (BookMeta)item.getItemMeta();
+        ItemMeta meta = item.getItemMeta();
         PersistentDataContainer data = meta.getPersistentDataContainer();
 
-        boolean isOriginal = meta.getGeneration() == BookMeta.Generation.ORIGINAL;
+        // Check for falsified keys
+        boolean isOriginal = true;
+        if (meta instanceof BookMeta bookMeta) {
+            isOriginal = bookMeta.getGeneration() == BookMeta.Generation.ORIGINAL;
+        }
 
+        // Teleport in
         if(data.has(enterKey, PersistentDataType.INTEGER)) {
             event.setCancelled(true);
             teleport(player, true, isOriginal);
         }
 
+        // Teleport out
         if(data.has(exitKey, PersistentDataType.INTEGER)) {
             event.setCancelled(true);
             teleport(player, false, isOriginal);
