@@ -18,6 +18,7 @@ public class Main extends JavaPlugin implements Listener {
     public static final String TP_NOWHERE_CMD = "tpnowhere";
     public static final String TP_WORLD_CMD = "tpworld";
     public static final String INTRO_EVENT_CMD = "introevent";
+    public static final String SET_INTRO_EVENT_CMD = "setintroevent";
 
     private final Nowhere nowhere = new Nowhere(this);
 
@@ -35,13 +36,16 @@ public class Main extends JavaPlugin implements Listener {
                 new TpWorldCommand(TP_WORLD_CMD),
                 new EnterItemCommand(ENTER_KEY_CMD),
                 new ExitItemCommand(EXIT_KEY_CMD),
-                new IntroEventCommand(INTRO_EVENT_CMD)
+                new IntroEventCommand(INTRO_EVENT_CMD),
+                new SetIntroEventCommand(SET_INTRO_EVENT_CMD)
         };
 
         for (TGCommand command : commands) {
             String cmd = command.getCommand();
             Objects.requireNonNull(getCommand(cmd)).setExecutor(command);
         }
+
+        nowhere.onEnable();
     }
 
     public static void executeCommandForPlayer(String cmd, Player player) {

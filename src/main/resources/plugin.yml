@@ -29,6 +29,10 @@ commands:
   introevent:
     usage: /introevent
 
+  setintroevent:
+    usage: /setintroevent
+    permission: op
+
   getenterkey:
     usage: /getenterkey
     permission: op

@@ -5,6 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import tg.lepsima.nowhere.Main;
 import tg.lepsima.nowhere.Nowhere;
 import tg.lepsima.nowhere.TGCommand;
 
@@ -22,6 +23,7 @@ public class LeaveEventCommand extends TGCommand implements CommandExecutor {
 
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "team leave " + player.getName());
 
+        // If leaves the event inside nowhere, teleport out and remove keys
         if (Nowhere.isNowhere(player)){
             Nowhere.Instance.teleport(player, false, true);
         }

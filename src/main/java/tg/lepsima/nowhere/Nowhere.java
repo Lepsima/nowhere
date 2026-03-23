@@ -4,10 +4,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.*;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -25,6 +23,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,26 +33,74 @@ public class Nowhere implements Listener {
     public static final String BYPASS_PERMISSION = "nowhere.bypass";
 
     public static Nowhere Instance;
-    public static Plugin Plugin;
+    public static JavaPlugin Plugin;
 
     private final NamespacedKey enterKey;
     private final NamespacedKey exitKey;
     private final Cooldown cooldown = new Cooldown(2000);
 
-    public Nowhere(Plugin plugin) {
+    public Nowhere(JavaPlugin plugin) {
         Nowhere.Instance = this;
         Nowhere.Plugin = plugin;
+
         enterKey = new NamespacedKey(plugin, "enter_key");
         exitKey = new NamespacedKey(plugin, "exit_key");
+
+        IntroEventManager.init(plugin);
+    }
+
+    public void onEnable() {
+        Bukkit.getScheduler().runTaskTimer(Nowhere.Plugin, Nowhere::periodicSearch, 0L, 20L);
+    }
+
+    public static void periodicSearch() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Location location = player.getLocation();
+
+            if (isInsidePortal(location) && !IntroEventManager.isInList(player.getUniqueId())) {
+                player.sendMessage("796F75");
+                IntroEventManager.addPlayer(player.getUniqueId());
+                Nowhere.Instance.teleport(player, false, true);
+            }
+        }
     }
 
     //region - Functions -
     public static boolean isNowhere(Player player) {
         return player.getWorld().getName().equals(DIMENSION);
     }
+    public static boolean isNowhere(Location location) {
+        return location.getWorld().getName().equals(DIMENSION);
+    }
 
     public static boolean isRestricted(Player player) {
         return !player.hasPermission(BYPASS_PERMISSION);
+    }
+
+    //execute in nowhere:nowhere run worldborder set 1000
+
+    public static boolean isInsidePortal(Location loc) {
+        double x = loc.getX();
+        double y = loc.getY();
+        double z = loc.getZ();
+
+        double minX = 0;
+        double maxX = 1;
+
+        double minY = 37;
+        double maxY = 41;
+
+        double minZ = -1;
+        double maxZ = 2;
+
+        boolean isInArea =
+                x >= minX && x <= maxX &&
+                y >= minY && y <= maxY &&
+                z >= minZ && z <= maxZ;
+
+        if (!isInArea) return false;
+
+        return isNowhere(loc);
     }
 
     public static ItemStack generateKey(String name, Material material, String model, String code) {
@@ -80,6 +127,26 @@ public class Nowhere implements Listener {
         item.setItemMeta(meta);
 
         return item;
+    }
+
+    public void removeItemsWithKey(Player player, NamespacedKey key) {
+        PlayerInventory inv = player.getInventory();
+        ItemStack[] contents = inv.getContents();
+
+        for (int i = 0; i < contents.length; i++) {
+            ItemStack item = contents[i];
+            if (item == null) continue;
+
+            ItemMeta meta = item.getItemMeta();
+            if (meta == null) continue;
+
+            PersistentDataContainer container = meta.getPersistentDataContainer();
+            if (container.has(key, PersistentDataType.INTEGER)) {
+                contents[i] = null;
+            }
+        }
+
+        inv.setContents(contents);
     }
     //endregion
 
@@ -170,17 +237,32 @@ public class Nowhere implements Listener {
         // Teleport in
         if(data.has(enterKey, PersistentDataType.INTEGER)) {
             event.setCancelled(true);
-            teleport(player, true, isOriginal);
+
+            if (!isOriginal) {
+                player.sendMessage("nue vfa uapv csvmrf nmtr lcl fm gozv xw");
+                removeEnterKey(player);
+            } else {
+                teleport(player, true, true);
+            }
         }
 
         // Teleport out
         if(data.has(exitKey, PersistentDataType.INTEGER)) {
             event.setCancelled(true);
-            teleport(player, false, isOriginal);
+            teleport(player, false, true);
         }
     }
 
-    public void teleport(Player player, boolean toNowhere, boolean isOriginal) {
+    public void removeEnterKey(Player player) {
+        PlayerInventory inv = player.getInventory();
+        inv.setItemInMainHand(inv.getItemInMainHand().subtract(1));
+    }
+
+    public void removeExitKeys(Player player) {
+        removeItemsWithKey(player, exitKey);
+    }
+
+    public void teleport(Player player, boolean toNowhere, boolean removeKeys) {
         if (isNowhere(player) == toNowhere) return;
 
         // Check cooldown
@@ -188,23 +270,22 @@ public class Nowhere implements Listener {
         if (!cooldown.isAvailable(uuid)) return;
         cooldown.startCooldown(uuid);
 
+        if (removeKeys) {
+            if (toNowhere) {
+                removeEnterKey(player);
+            } else {
+                removeExitKeys(player);
+            }
+        }
+
         // Teleport
         String cmd = toNowhere ? Main.TP_NOWHERE_CMD : Main.TP_WORLD_CMD;
         Main.executeCommandForPlayer(cmd, player);
-
-        // Remove old key
-        PlayerInventory inv = player.getInventory();
-        inv.setItemInMainHand(inv.getItemInMainHand().subtract(1));
 
         // Give back return key if needed
         if (toNowhere || !isRestricted(player)) {
             String key_cmd = toNowhere ? Main.EXIT_KEY_CMD : Main.ENTER_KEY_CMD;
             Main.executeCommandForPlayer(key_cmd, player);
-        }
-
-        // When using cloned key
-        if (!isOriginal) {
-            player.sendMessage("I know what you've done . . .");
         }
     }
     // endregion
