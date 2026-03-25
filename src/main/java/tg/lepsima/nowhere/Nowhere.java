@@ -24,7 +24,9 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import tg.lepsima.nowhere.kraber.Kraber;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +35,7 @@ public class Nowhere implements Listener {
     public static final String BYPASS_PERMISSION = "nowhere.bypass";
 
     public static Nowhere Instance;
+    public static Kraber Kraber;
     public static JavaPlugin Plugin;
 
     private final NamespacedKey enterKey;
@@ -41,6 +44,7 @@ public class Nowhere implements Listener {
 
     public Nowhere(JavaPlugin plugin) {
         Nowhere.Instance = this;
+        Nowhere.Kraber = new Kraber();
         Nowhere.Plugin = plugin;
 
         enterKey = new NamespacedKey(plugin, "enter_key");
@@ -54,8 +58,14 @@ public class Nowhere implements Listener {
     }
 
     public static void periodicSearch() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
+        Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+
+        int playerCount = players.size();
+        Kraber.setPlayerCount(playerCount);
+
+        for (Player player : players) {
             Location location = player.getLocation();
+            Kraber.handlePlayer(player);
 
             if (isInsidePortal(location) && !IntroEventManager.isInList(player.getUniqueId())) {
                 player.sendMessage("796F75");

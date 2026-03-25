@@ -1,6 +1,7 @@
 package tg.lepsima.nowhere.economy;
 
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,13 +11,15 @@ import java.util.*;
 public class Bank {
     private final JavaPlugin plugin;
     private final String name;
+    private String password;
     private final HashMap<Material, BankResource> resources = new HashMap<>();
 
-    public Bank(JavaPlugin plugin, String name) {
+    public Bank(JavaPlugin plugin, String name, String password) {
         this.plugin = plugin;
-        this.plugin.saveDefaultConfig();
         this.name = name;
+        this.plugin.saveDefaultConfig();
 
+        changePassword(this.password, password);
         load();
     }
 
@@ -26,6 +29,17 @@ public class Bank {
 
     public String getPath() {
         return "BANK_" + getName();
+    }
+
+    public String getPasswordPath() {
+        return "PASSWORD_" + getPath();
+    }
+
+    public void changePassword(String oldPassword, String newPassword) {
+        if (oldPassword.equals(password)) {
+            password = newPassword;
+            save();
+        }
     }
 
     public void createMaterial(Material material, int initialValue, int initialStock) {
@@ -56,13 +70,15 @@ public class Bank {
             player.sendMessage("Insufficient items found to sell.");
             return;
         }
-
     }
 
     public void load() {
         resources.clear();
 
-        List<String> list = plugin.getConfig().getStringList(getPath());
+        FileConfiguration config = plugin.getConfig();
+        password = config.getString(getPasswordPath());
+        List<String> list = config.getStringList(getPath());
+
         for (String str : list) {
             BankResource resource = BankResource.fromString(str);
             resources.put(resource.material, resource);
@@ -75,7 +91,10 @@ public class Bank {
             list.add(res.toString());
         }
 
-        plugin.getConfig().set(getPath(), list);
+        FileConfiguration config = plugin.getConfig();
+        config.set(getPath(), list);
+        config.set(getPasswordPath(), password);
+
         plugin.saveConfig();
     }
 }
