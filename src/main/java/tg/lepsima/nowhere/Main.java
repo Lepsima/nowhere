@@ -5,6 +5,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.entity.Player;
 import tg.lepsima.nowhere.commands.*;
+import tg.lepsima.nowhere.economy.Bank;
 
 import java.util.Objects;
 
@@ -45,6 +46,7 @@ public class Main extends JavaPlugin implements Listener {
             Objects.requireNonNull(getCommand(cmd)).setExecutor(command);
         }
 
+        saveResource(Bank.RESOURCE_PATH, false);
         nowhere.onEnable();
     }
 
