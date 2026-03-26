@@ -1,7 +1,7 @@
 package tg.lepsima.nowhere.economy;
 
 import org.bukkit.Material;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -9,22 +9,22 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NonNull;
 import tg.lepsima.nowhere.Main;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class Bank implements ConfigurationSerializable {
     public final static String RESOURCE_PATH = "banks.yml";
+    public final static List<Bank> ALL_BANKS = new ArrayList<>();
 
-    private final JavaPlugin plugin;
     private final String name;
-
-    private String password;
-    private double interest;
+    private final String password;
+    private final double interest;
 
     private final HashMap<Material, BankResource> resources = new HashMap<>();
 
-    public Bank(JavaPlugin plugin, String name, String password, double interest, List<String> resources) {
-        this(plugin, name);
-
+    public Bank(String name, String password, double interest, List<String> resources) {
+        this.name = name;
         this.password = password;
         this.interest = interest;
 
@@ -34,31 +34,44 @@ public class Bank implements ConfigurationSerializable {
         }
     }
 
-    public Bank(JavaPlugin plugin, String name) {
-        this.plugin = plugin;
-        this.name = name;
+    private static File getBankFile() {
+        JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
+        return new File(plugin.getDataFolder(), Bank.RESOURCE_PATH);
     }
 
-    public String getName() {
-        return name;
-    }
+    @SuppressWarnings("unchecked")
+    public static void loadBanks() {
+        File bankFile = getBankFile();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(bankFile);
 
-    public String getPath() {
-        return "BANK_" + getName();
-    }
-
-    public List<String> getResourcesAsString() {
-        List<String> list = new ArrayList<>();
-        for (BankResource res : resources.values()) {
-            list.add(res.toString());
+        List<Map<?, ?>> mapList = config.getMapList("banks");
+        for (Map<?, ?> mapEntry : mapList) {
+            Map<String, Object> map = (Map<String, Object>) mapEntry;
+            ALL_BANKS.add(Bank.deserialize(map));
         }
-        return list;
+    }
+
+    public static void saveBanks() {
+        File bankFile = getBankFile();
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(bankFile);
+
+        List<Map<String, Object>> mapList = ALL_BANKS.stream().map(Bank::serialize).toList();
+        config.set("banks", mapList);
+
+        try {
+            config.save(bankFile);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public @NonNull Map<String, Object> serialize() {
-        Map<String, Object> data = new HashMap<>();
-        List<String> resourceList = getResourcesAsString();
+        List<String> resourceList = new ArrayList<>();
+        for (BankResource res : resources.values()) {
+            resourceList.add(res.toString());
+        }
 
+        Map<String, Object> data = new HashMap<>();
         data.put("name", this.name);
         data.put("password", this.password);
         data.put("interest", this.interest);
@@ -67,15 +80,14 @@ public class Bank implements ConfigurationSerializable {
         return data;
     }
 
+    @SuppressWarnings("unchecked")
     public static Bank deserialize(Map<String, Object> args) {
-        JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
-
         String name = (String)args.get("name");
         String password = (String)args.get("password");
         double interest = (double)args.get("interest");
         List<String> resourceList = (List<String>)args.get("resources");
 
-        return new Bank(plugin, name, password, interest, resourceList);
+        return new Bank(name, password, interest, resourceList);
     }
 
     public void createMaterial(Material material, int initialValue, int initialStock) {

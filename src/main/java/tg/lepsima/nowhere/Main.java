@@ -1,6 +1,7 @@
 package tg.lepsima.nowhere;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.entity.Player;
@@ -46,8 +47,16 @@ public class Main extends JavaPlugin implements Listener {
             Objects.requireNonNull(getCommand(cmd)).setExecutor(command);
         }
 
-        saveResource(Bank.RESOURCE_PATH, false);
         nowhere.onEnable();
+
+        ConfigurationSerialization.registerClass(Bank.class);
+        saveResource(Bank.RESOURCE_PATH, false);
+        Bank.loadBanks();
+    }
+
+    @Override
+    public void onDisable() {
+        Bank.saveBanks();
     }
 
     public static void executeCommandForPlayer(String cmd, Player player) {
