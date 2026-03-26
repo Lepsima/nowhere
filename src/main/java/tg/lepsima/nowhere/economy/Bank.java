@@ -3,8 +3,6 @@ package tg.lepsima.nowhere.economy;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NonNull;
 import tg.lepsima.nowhere.Main;
@@ -15,7 +13,7 @@ import java.util.*;
 
 public class Bank implements ConfigurationSerializable {
     public final static String RESOURCE_PATH = "banks.yml";
-    public final static List<Bank> ALL_BANKS = new ArrayList<>();
+    public final static HashMap<String, Bank> ALL_BANKS = new HashMap<>();
 
     private final String name;
     private final String password;
@@ -46,8 +44,8 @@ public class Bank implements ConfigurationSerializable {
 
         List<Map<?, ?>> mapList = config.getMapList("banks");
         for (Map<?, ?> mapEntry : mapList) {
-            Map<String, Object> map = (Map<String, Object>) mapEntry;
-            ALL_BANKS.add(Bank.deserialize(map));
+            Bank bank = Bank.deserialize((Map<String, Object>)mapEntry);
+            ALL_BANKS.put(bank.name, bank);
         }
     }
 
@@ -55,7 +53,7 @@ public class Bank implements ConfigurationSerializable {
         File bankFile = getBankFile();
         YamlConfiguration config = YamlConfiguration.loadConfiguration(bankFile);
 
-        List<Map<String, Object>> mapList = ALL_BANKS.stream().map(Bank::serialize).toList();
+        List<Map<String, Object>> mapList = ALL_BANKS.values().stream().map(Bank::serialize).toList();
         config.set("banks", mapList);
 
         try {
@@ -90,32 +88,15 @@ public class Bank implements ConfigurationSerializable {
         return new Bank(name, password, interest, resourceList);
     }
 
-    public void createMaterial(Material material, int initialValue, int initialStock) {
+    public void createResource(Material material, int initialValue, int initialStock) {
         resources.put(material, new BankResource(material, initialValue, initialStock));
     }
 
-    public void deleteMaterial(Material material) {
+    public void deleteResource(Material material) {
         resources.remove(material);
     }
 
-    public void tryBuyMaterial(Player player, Material material, int amount) {
-        BankResource resource = resources.get(material);
-        int playerBalance = 0; // GET THIS VALUE FROM THE PLAYER
-
-        if (playerBalance < amount) {
-            player.sendMessage("Insufficient balance to buy.");
-            return;
-        }
+    public BankResource getResource(Material material) {
+        return resources.get(material);
     }
-
-    public void trySellMaterial(Player player, Material material, int amount) {
-        BankResource resource = resources.get(material);
-        ItemStack playerMaterials = new ItemStack(Material.ACACIA_BOAT, 1); // GET THIS VALUE FROM THE PLAYER
-
-        if (playerMaterials.getAmount() < amount) {
-            player.sendMessage("Insufficient items found to sell.");
-            return;
-        }
-    }
-
 }

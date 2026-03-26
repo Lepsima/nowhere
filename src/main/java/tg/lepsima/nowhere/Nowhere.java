@@ -87,8 +87,6 @@ public class Nowhere implements Listener {
         return !player.hasPermission(BYPASS_PERMISSION);
     }
 
-    //execute in nowhere:nowhere run worldborder set 1000
-
     public static boolean isInsidePortal(Location loc) {
         double x = loc.getX();
         double y = loc.getY();

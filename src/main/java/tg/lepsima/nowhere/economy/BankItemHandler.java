@@ -21,7 +21,7 @@ public class BankItemHandler {
     private static final World WORLD = Bukkit.getWorld("world");
     private static final NamespacedKey CURRENCY_KEY = new NamespacedKey("nowhere", "currency");
 
-    public ItemStack generateCurrency(int amount, int value) {
+    public static ItemStack generateCurrency(int amount, int value) {
         ItemStack item = ItemStack.of(Material.PAPER, amount);
         ItemMeta meta = item.getItemMeta();
         meta.setMaxStackSize(MAX_CURRENCY_STACK);
@@ -45,13 +45,7 @@ public class BankItemHandler {
         return item;
     }
 
-    private Inventory getInventory(int x, int y, int z) {
-        assert WORLD != null;
-        Block block = WORLD.getBlockAt(x, y, z);
-        return block.getState() instanceof InventoryHolder holder ? holder.getInventory() : null;
-    }
-
-    public void giveCurrency(Inventory inventory, int amount) {
+    public static void giveCurrency(Inventory inventory, int amount) {
         int fullValueItems = amount / MAX_CURRENCY_VALUE;
         int remainder = amount % MAX_CURRENCY_VALUE;
 
@@ -83,21 +77,57 @@ public class BankItemHandler {
             stacks[index] = generateCurrency(remainder, 1);
         }
 
-        var leftover = inventory.addItem(stacks);
+        giveItems(inventory, stacks);
+    }
+
+    public static void giveMaterials(Inventory inventory, Material material, int amount) {
+        ItemStack[] stacks = { ItemStack.of(material, amount) };
+        giveItems(inventory, stacks);
+    }
+
+    public static void giveItems(Inventory inventory, ItemStack[] stacks) {
+        HashMap<Integer, ItemStack> leftover = inventory.addItem(stacks);
+        if (leftover.isEmpty()) {
+            return;
+        }
+
+        Location location = inventory.getLocation();
+        if (location == null) return;
 
         // Drop leftovers
-        if (!leftover.isEmpty()) {
-            Location location = inventory.getLocation();
-            if (location == null) return;
-
-            for (ItemStack item : leftover.values()) {
-                assert WORLD != null;
-                WORLD.dropItemNaturally(location, item);
-            }
+        for (ItemStack item : leftover.values()) {
+            assert WORLD != null;
+            WORLD.dropItemNaturally(location, item);
         }
     }
 
-    public int removeMaterials(Inventory inventory, Material material, int amount) {
+    public static int countMaterials(Inventory inventory, Material material) {
+        ItemStack[] contents = inventory.getContents();
+        int total = 0;
+
+        for (ItemStack stack : contents) {
+            if (stack.getType() == material) {
+                total += stack.getAmount();
+            }
+        }
+
+        return total;
+    }
+
+    public static int countCurrency(Inventory inventory) {
+        ItemStack[] contents = inventory.getContents();
+        int total = 0;
+
+        for (ItemStack stack : contents) {
+            int stackAmount = stack.getAmount();
+            int itemValue = getCurrencyValue(stack);
+            total += stackAmount * itemValue;
+        }
+
+        return total;
+    }
+
+    public static int removeMaterials(Inventory inventory, Material material, int amount) {
         ItemStack[] contents = inventory.getContents();
         int remaining = amount;
         int index = 0;
@@ -116,7 +146,7 @@ public class BankItemHandler {
         return amount - remaining;
     }
 
-    public int removeCurrency(Inventory inventory, int amount) {
+    public static int removeCurrency(Inventory inventory, int amount) {
         ItemStack[] contents = inventory.getContents();
         int remaining = amount;
         int index = 0;
@@ -146,7 +176,7 @@ public class BankItemHandler {
     }
 
     // Gets the value in currency of any item stack
-    public int getCurrencyValue(ItemStack stack) {
+    private static int getCurrencyValue(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         if (meta == null) {
             return 0;

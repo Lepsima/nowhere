@@ -1,6 +1,9 @@
 package tg.lepsima.nowhere.economy;
 
 import org.bukkit.Material;
+import org.joml.Vector2d;
+import org.joml.Vector2i;
+import org.joml.Vector2ic;
 
 public class BankResource {
     public final Material material;
@@ -20,27 +23,42 @@ public class BankResource {
     }
 
     public double getBuyValueAt(int stock) {
+        if (stock < 1) return Integer.MAX_VALUE;
         return (double)initialStock / initialValue * stock;
     }
 
     public double getSellValueAt(int stock) {
+        if (stock < 1) stock = 0;
         return getBuyValueAt(stock + 1);
     }
 
-    public double getBuyValueAtRange(int stock, int amount) {
+    public int getBuyValueAtRange(int stock, int amount) {
         double cost = 0;
         for (int i = 0; i < amount; i++) {
             cost += getBuyValueAt(stock - i);
         }
-        return cost;
+        return (int)Math.ceil(cost);
     }
 
-    public double getSellValueAtRange(int stock, int amount) {
+    public Vector2i getBuyRoundedBudget(int stock, double budget) {
+        int amount = 0;
+        double remainingBudget = budget;
+
+        while (true) {
+            double value = getBuyValueAt(stock - amount);
+            if (value > remainingBudget) break;
+            remainingBudget -= value;
+        }
+
+        return new Vector2i((int)Math.ceil(budget - remainingBudget), amount);
+    }
+
+    public int getSellValueAtRange(int stock, int amount) {
         double cost = 0;
         for (int i = 0; i < amount; i++) {
             cost += getSellValueAt(stock + i);
         }
-        return cost;
+        return (int)Math.ceil(cost);
     }
 
     public String toString() {
