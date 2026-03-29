@@ -16,6 +16,7 @@ public class BankAdminCommand extends TGCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         switch (args[0]) {
+            // Create a new bank
             case "create-bank":
                 try {
                     String name = args[1];
@@ -35,6 +36,7 @@ public class BankAdminCommand extends TGCommand implements CommandExecutor {
                 }
                 break;
 
+            // Delete a bank
             case "delete-bank":
                 Bank bank = Bank.ALL_BANKS.get(args[1]);
                 if (bank != null && bank.isCorrectPassword(args[2])) {

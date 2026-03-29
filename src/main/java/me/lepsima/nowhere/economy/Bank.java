@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+// This class represents an individual bank
+// Multiple banks can exist, each one with different stock and resources
 public class Bank implements ConfigurationSerializable {
     public final static String RESOURCE_PATH = "banks.yml";
     public final static HashMap<String, Bank> ALL_BANKS = new HashMap<>();
@@ -21,31 +23,40 @@ public class Bank implements ConfigurationSerializable {
 
     private final HashMap<Material, BankResource> resources = new HashMap<>();
 
+    // Create new bank instance
     public Bank(String name, String password, double interest, List<String> resources) {
         this.name = name;
         this.password = password;
         this.interest = interest;
 
+        // Import resources, optional
         for (String str : resources) {
             BankResource resource = BankResource.fromString(str);
             this.resources.put(resource.material, resource);
         }
     }
 
+    // Checks if the password is correct
     public boolean isCorrectPassword(String password) {
         return this.password.equals(password);
     }
 
+    // Get the banks save file
     private static File getBankFile() {
         JavaPlugin plugin = JavaPlugin.getPlugin(Main.class);
         return new File(plugin.getDataFolder(), Bank.RESOURCE_PATH);
     }
 
+    // Load all bank instances from the file
     @SuppressWarnings("unchecked")
     public static void loadBanks() {
+
+        // Get yml
+        ALL_BANKS.clear();
         File bankFile = getBankFile();
         YamlConfiguration config = YamlConfiguration.loadConfiguration(bankFile);
 
+        // Convert yml to bank instances
         List<Map<?, ?>> mapList = config.getMapList("banks");
         for (Map<?, ?> mapEntry : mapList) {
             Bank bank = Bank.deserialize((Map<String, Object>)mapEntry);
@@ -53,13 +64,16 @@ public class Bank implements ConfigurationSerializable {
         }
     }
 
+    // Save banks to file
     public static void saveBanks() {
         File bankFile = getBankFile();
         YamlConfiguration config = YamlConfiguration.loadConfiguration(bankFile);
 
+        // Banks to <Name, Bank> map for the yml to handle
         List<Map<String, Object>> mapList = ALL_BANKS.values().stream().map(Bank::serialize).toList();
         config.set("banks", mapList);
 
+        // Try to save the file
         try {
             config.save(bankFile);
         } catch (IOException e) {
@@ -67,6 +81,7 @@ public class Bank implements ConfigurationSerializable {
         }
     }
 
+    // Convert this bank instance to valid YML format
     public @NonNull Map<String, Object> serialize() {
         List<String> resourceList = new ArrayList<>();
         for (BankResource res : resources.values()) {
@@ -82,6 +97,7 @@ public class Bank implements ConfigurationSerializable {
         return data;
     }
 
+    // Create a new bank from valid YML data
     @SuppressWarnings("unchecked")
     public static Bank deserialize(Map<String, Object> args) {
         String name = (String)args.get("name");
@@ -92,14 +108,17 @@ public class Bank implements ConfigurationSerializable {
         return new Bank(name, password, interest, resourceList);
     }
 
+    // Create a new resource stock for a new material
     public void createResource(Material material, int initialValue, int initialStock) {
         resources.put(material, new BankResource(material, initialValue, initialStock));
     }
 
+    // Delete the bank's stock for this material
     public void deleteResource(Material material) {
         resources.remove(material);
     }
 
+    // Get the resource for a specific material
     public BankResource getResource(Material material) {
         return resources.get(material);
     }

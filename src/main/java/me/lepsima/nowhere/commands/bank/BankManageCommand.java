@@ -30,6 +30,7 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
         }
 
         switch (args[2]) {
+            // Make the bank trade a new item
             case "new-resource":
                 try {
                     int initialValue = Integer.parseInt(args[4]);
@@ -43,10 +44,13 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
 
                 break;
 
+            // Remove an item trade from the bank
             case "del-resource":
                 bank.deleteResource(material);
                 break;
 
+
+            // restock a bank resource (used by the owner)
             case "add-stock":
                 if (player != null) {
                     //BankResource resource = bank.getResource()
@@ -54,6 +58,7 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
 
                 break;
 
+            // get stock back from a bank resource (used by the owner)
             case "remove-stock":
                 if (player != null) {
 

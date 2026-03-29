@@ -15,12 +15,15 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.HashMap;
 import java.util.List;
 
+// This boi removes and gives items, he knows nothing about banks
+// It removes and gives/creates items on demand, on any inventory
 public class BankItemHandler {
     public static final int MAX_CURRENCY_VALUE = 500;
     public static final int MAX_CURRENCY_STACK = 128;
     private static final World WORLD = Bukkit.getWorld("world");
     private static final NamespacedKey CURRENCY_KEY = new NamespacedKey("nowhere", "currency");
 
+    // Make new money item
     public static ItemStack generateCurrency(int amount, int value) {
         ItemStack item = ItemStack.of(Material.PAPER, amount);
         ItemMeta meta = item.getItemMeta();
@@ -45,6 +48,7 @@ public class BankItemHandler {
         return item;
     }
 
+    // Give money to an inventory
     public static void giveCurrency(Inventory inventory, int amount) {
         int fullValueItems = amount / MAX_CURRENCY_VALUE;
         int remainder = amount % MAX_CURRENCY_VALUE;
@@ -80,11 +84,13 @@ public class BankItemHandler {
         giveItems(inventory, stacks);
     }
 
+    // Give resources to an inventory
     public static void giveMaterials(Inventory inventory, Material material, int amount) {
         ItemStack[] stacks = { ItemStack.of(material, amount) };
         giveItems(inventory, stacks);
     }
 
+    // Give specified items to an inventory
     public static void giveItems(Inventory inventory, ItemStack[] stacks) {
         HashMap<Integer, ItemStack> leftover = inventory.addItem(stacks);
         if (leftover.isEmpty()) {
@@ -101,6 +107,7 @@ public class BankItemHandler {
         }
     }
 
+    // How many items has this inventory?
     public static int countMaterials(Inventory inventory, Material material) {
         ItemStack[] contents = inventory.getContents();
         int total = 0;
@@ -114,6 +121,7 @@ public class BankItemHandler {
         return total;
     }
 
+    // How much money has this inventory?
     public static int countCurrency(Inventory inventory) {
         ItemStack[] contents = inventory.getContents();
         int total = 0;
@@ -127,6 +135,7 @@ public class BankItemHandler {
         return total;
     }
 
+    // Remove this amount of items from this inventory
     public static int removeMaterials(Inventory inventory, Material material, int amount) {
         ItemStack[] contents = inventory.getContents();
         int remaining = amount;
@@ -143,9 +152,13 @@ public class BankItemHandler {
             }
         }
 
+        // This should be zero if you previously
+        // calculated how many materials has the inventory
+        // In any case it tells you how much wasn't able to remove
         return amount - remaining;
     }
 
+    // Remove this amount of money from this inventory
     public static int removeCurrency(Inventory inventory, int amount) {
         ItemStack[] contents = inventory.getContents();
         int remaining = amount;
@@ -172,6 +185,9 @@ public class BankItemHandler {
             giveCurrency(inventory, giveAmount);
         }
 
+        // This should be zero if you previously
+        // calculated how much money has the inventory
+        // In any case it tells you how much wasn't able to remove
         return amount - remaining;
     }
 
