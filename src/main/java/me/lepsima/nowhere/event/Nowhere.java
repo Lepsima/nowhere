@@ -1,4 +1,4 @@
-package tg.lepsima.nowhere;
+package me.lepsima.nowhere.event;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -22,9 +22,10 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import tg.lepsima.nowhere.kraber.Kraber;
+import me.lepsima.nowhere.Cooldown;
+import me.lepsima.nowhere.Main;
+import me.lepsima.nowhere.kraber.Kraber;
 
 import java.util.Collection;
 import java.util.List;

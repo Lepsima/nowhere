@@ -1,9 +1,9 @@
-package tg.lepsima.nowhere.commands;
+package me.lepsima.nowhere.commands.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import tg.lepsima.nowhere.TGCommand;
+import me.lepsima.nowhere.TGCommand;
 
 public class TpNowhereCommand extends TGCommand {
     public TpNowhereCommand(String command) {

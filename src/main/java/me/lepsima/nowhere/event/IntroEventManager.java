@@ -1,4 +1,4 @@
-package tg.lepsima.nowhere;
+package me.lepsima.nowhere.event;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

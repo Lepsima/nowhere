@@ -1,4 +1,4 @@
-package tg.lepsima.nowhere;
+package me.lepsima.nowhere;
 
 import org.bukkit.command.CommandExecutor;
 

@@ -1,10 +1,10 @@
-package tg.lepsima.nowhere.commands;
+package me.lepsima.nowhere.commands.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import tg.lepsima.nowhere.TGCommand;
+import me.lepsima.nowhere.TGCommand;
 
 public class TpWorldCommand extends TGCommand implements CommandExecutor {
     public TpWorldCommand(String command) {

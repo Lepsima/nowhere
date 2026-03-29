@@ -1,9 +1,8 @@
-package tg.lepsima.nowhere.economy;
+package me.lepsima.nowhere.economy;
 
 import org.bukkit.Material;
-import org.joml.Vector2d;
+import org.bukkit.inventory.Inventory;
 import org.joml.Vector2i;
-import org.joml.Vector2ic;
 
 public class BankResource {
     public final Material material;
@@ -20,6 +19,29 @@ public class BankResource {
         this.initialValue = initialValue;
         this.initialStock = initialStock;
         this.currentStock = currentStock;
+    }
+
+    public void addStock(int amount) {
+        currentStock += amount;
+    }
+
+    public void removeStock(int amount) {
+        currentStock -= amount;
+        currentStock = Math.max(0, currentStock);
+    }
+
+    public void addStock(Inventory from, int amount) {
+        int materials = BankItemHandler.countMaterials(from, material);
+        int realAmount = Math.min(amount, materials);
+
+        BankItemHandler.removeMaterials(from, material, realAmount);
+        addStock(realAmount);
+    }
+
+    public  void removeStock(Inventory from, int amount) {
+        int realAmount = Math.min(amount, currentStock);
+        BankItemHandler.giveMaterials(from, material, realAmount);
+        removeStock(realAmount);
     }
 
     public double getBuyValueAt(int stock) {

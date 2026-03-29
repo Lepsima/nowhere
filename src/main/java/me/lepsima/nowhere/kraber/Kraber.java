@@ -1,4 +1,4 @@
-package tg.lepsima.nowhere.kraber;
+package me.lepsima.nowhere.kraber;
 
 import org.bukkit.entity.Player;
 

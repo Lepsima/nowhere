@@ -1,13 +1,12 @@
-package tg.lepsima.nowhere.commands;
+package me.lepsima.nowhere.commands.event;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import tg.lepsima.nowhere.Main;
-import tg.lepsima.nowhere.Nowhere;
-import tg.lepsima.nowhere.TGCommand;
+import me.lepsima.nowhere.event.Nowhere;
+import me.lepsima.nowhere.TGCommand;
 
 public class LeaveEventCommand extends TGCommand implements CommandExecutor {
     public LeaveEventCommand(String command) {

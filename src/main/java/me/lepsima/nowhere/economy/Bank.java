@@ -1,11 +1,11 @@
-package tg.lepsima.nowhere.economy;
+package me.lepsima.nowhere.economy;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NonNull;
-import tg.lepsima.nowhere.Main;
+import me.lepsima.nowhere.Main;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +30,10 @@ public class Bank implements ConfigurationSerializable {
             BankResource resource = BankResource.fromString(str);
             this.resources.put(resource.material, resource);
         }
+    }
+
+    public boolean isCorrectPassword(String password) {
+        return this.password.equals(password);
     }
 
     private static File getBankFile() {

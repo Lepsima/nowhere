@@ -1,4 +1,4 @@
-package tg.lepsima.nowhere.economy;
+package me.lepsima.nowhere.economy;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -7,7 +7,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
 
@@ -22,12 +21,16 @@ public class ExchangeSiteData {
     public Inventory inventory;
     public Sign sign;
 
-    public ExchangeSiteData getSite(String bankName, String material, Vector3i v1, Vector3i v2) {
+    public static ExchangeSiteData getSite(String bankName, String material, Vector3i v1, Vector3i v2) {
         if (!SITES.containsKey(v1)) {
             SITES.put(v1, new ExchangeSiteData(bankName, material, v1, v2));
         }
 
         return SITES.get(v1);
+    }
+
+    public static void clearSiteCache() {
+        SITES.clear();
     }
 
     public ExchangeSiteData(String bankName, String material, Vector3i v1, Vector3i v2) {
@@ -58,14 +61,26 @@ public class ExchangeSiteData {
     }
 
     public void tradeCurrencyToMaterials() {
+        // Calculate prices and amounts
         Vector2i data = getCurrencyValue();
+
+        // Remove money
         BankItemHandler.removeCurrency(inventory, data.x);
+
+        // Give materials
         BankItemHandler.giveMaterials(inventory, resource.material, data.y);
+        resource.removeStock(data.y);
     }
 
     public void tradeMaterialsToCurrency() {
+        // Calculate prices and amounts
         Vector2i data = getMaterialValue();
+
+        // Remove materials
         BankItemHandler.removeMaterials(inventory, resource.material, data.x);
+        resource.addStock(data.x);
+
+        // Give money
         BankItemHandler.giveCurrency(inventory, data.y);
     }
 }

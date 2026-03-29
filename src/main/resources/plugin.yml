@@ -1,6 +1,6 @@
 name: Nowhere
-version: 1.1
-main: tg.lepsima.nowhere.Main
+version: 1.2
+main: me.lepsima.nowhere.Main
 api-version: 1.21
 description: Nowhere
 
@@ -17,6 +17,19 @@ commands:
   chatcolor:
     description: Changes your color in the chat
     usage: /chatcolor
+
+  bankadmin:
+    description: Create and remove banks
+    usage: /bankadmin
+    permission: op
+
+  bankmanage:
+    description: Manage your bank
+    usage: /bankmanage
+
+  banktrade:
+    description: Trade
+    usage: /banktrade
 
   joinevent:
     description: Participate in the event

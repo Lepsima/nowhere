@@ -1,26 +1,17 @@
-package tg.lepsima.nowhere.commands;
+package me.lepsima.nowhere.commands.event;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
-import tg.lepsima.nowhere.Nowhere;
-import tg.lepsima.nowhere.TGCommand;
+import me.lepsima.nowhere.event.Nowhere;
+import me.lepsima.nowhere.TGCommand;
 
-import java.util.List;
-
-public class ExitItemCommand extends TGCommand implements CommandExecutor {
-    public ExitItemCommand(String command) {
+public class EnterItemCommand extends TGCommand implements CommandExecutor {
+    public EnterItemCommand(String command) {
         super(command);
     }
 
@@ -31,7 +22,7 @@ public class ExitItemCommand extends TGCommand implements CommandExecutor {
             return true;
         }
 
-        ItemStack item = Nowhere.generateKey("Exit Key", Material.WRITTEN_BOOK, "barrier", "exit_key");
+        ItemStack item = Nowhere.generateKey("Enter Key", Material.WRITTEN_BOOK, "tripwire_hook", "enter_key");
         Player player = Bukkit.getPlayer(args[0]);
 
         if (player != null) {
