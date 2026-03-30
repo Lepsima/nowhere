@@ -52,9 +52,18 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
                 break;
 
             // Remove an item trade from the bank
-            case "del-resource":
+            case "remove-resource": {
+                BankResource resource = bank.getResource(material);
+                if (resource == null) break;
+
+                // Give the player all the stock
+                int stock = resource.currentStock;
+                resource.removeStock(player.getInventory(), stock);
+
+                // Remove the now empty resource
                 bank.deleteResource(material);
                 break;
+            }
 
             case "view-stock": {
                 Collection<BankResource> resources = bank.getAllResources();

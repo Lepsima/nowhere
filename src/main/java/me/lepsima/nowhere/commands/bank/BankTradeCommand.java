@@ -21,18 +21,17 @@ public class BankTradeCommand extends TGCommand implements CommandExecutor {
             return true;
         }
 
-        Bank bank = Bank.ALL_BANKS.get(args[0]);
-        if (bank == null || !bank.isCorrectPassword(args[1])){
-            sender.sendMessage("Incorrect password or name for bank: " + args[0]);
+        String material = args[2];
+        Vector3i v1 = getCoords(args[3]);
+        Vector3i v2 = getCoords(args[4]);
+        ExchangeSiteData site = ExchangeSiteData.getSite(args[0], material, v1, v2);
+
+        if (site == null) {
+            sender.sendMessage("Invalid parameters for the trade.");
             return true;
         }
 
-        String material = args[3];
-        Vector3i v1 = getCoords(args[4]);
-        Vector3i v2 = getCoords(args[5]);
-        ExchangeSiteData site = ExchangeSiteData.getSite(args[0], material, v1, v2);
-
-        switch (args[2]) {
+        switch (args[1]) {
             case "see-money": {
                 Vector2i data = site.getMaterialValue();
                 sender.sendMessage("COST: " + data.x);

@@ -28,7 +28,9 @@ public class ExchangeSiteData {
     // If it's not cached, create a new one, it's temporal anyway
     public static ExchangeSiteData getSite(String bankName, String material, Vector3i v1, Vector3i v2) {
         if (!SITES.containsKey(v1)) {
-            SITES.put(v1, new ExchangeSiteData(bankName, material, v1, v2));
+            ExchangeSiteData site = new ExchangeSiteData(bankName, material, v1, v2);
+            if (!site.isValidSite()) return null;
+            SITES.put(v1, site);
         }
 
         return SITES.get(v1);
@@ -42,7 +44,10 @@ public class ExchangeSiteData {
     // Create new ATM site
     public ExchangeSiteData(String bankName, String material, Vector3i v1, Vector3i v2) {
         bank = Bank.ALL_BANKS.get(bankName);
+        if (bank == null) return;
+
         resource = bank.getResource(Material.getMaterial(material));
+        if (resource == null) return;
 
         assert WORLD != null;
         Block inventoryBlock = WORLD.getBlockAt(v1.x, v1.y, v1.z);
@@ -50,6 +55,10 @@ public class ExchangeSiteData {
 
         Block signBlock = WORLD.getBlockAt(v2.x, v2.y, v2.z);
         sign = (Sign)signBlock.getState();
+    }
+
+    public boolean isValidSite() {
+        return resource != null && bank != null && inventory != null;
     }
 
     // Returns how much money the bank gives you for your items, and how many items you can actually sell
