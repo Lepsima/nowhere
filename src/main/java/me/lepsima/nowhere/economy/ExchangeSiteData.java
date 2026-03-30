@@ -49,7 +49,7 @@ public class ExchangeSiteData {
         inventory = inventoryBlock.getState() instanceof InventoryHolder holder ? holder.getInventory() : null;
 
         Block signBlock = WORLD.getBlockAt(v2.x, v2.y, v2.z);
-        sign = (Sign)signBlock;
+        sign = (Sign)signBlock.getState();
     }
 
     // Returns how much money the bank gives you for your items, and how many items you can actually sell
@@ -58,13 +58,14 @@ public class ExchangeSiteData {
         int stock = resource.currentStock;
         int materials = BankItemHandler.countMaterials(inventory, resource.material);
         int value = resource.getSellValueAtRange(stock, materials);
-        return new Vector2i(value, materials);
+        return new Vector2i(materials, value);
     }
 
     // Returns how many materials the bank gives you, and exactly how much they will cost (to calculate reminder)
     // Returns: (Exact budget needed, Bought item count)
     public Vector2i getCurrencyValue() {
         int budget = BankItemHandler.countCurrency(inventory);
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw @a \"test: " + budget + "\"");
         int stock = resource.currentStock;
         return resource.getBuyRoundedBudget(stock, budget);
     }

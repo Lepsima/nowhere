@@ -62,11 +62,11 @@ public class Nowhere implements Listener {
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
 
         int playerCount = players.size();
-        Kraber.setPlayerCount(playerCount);
+        //Kraber.setPlayerCount(playerCount);
 
         for (Player player : players) {
             Location location = player.getLocation();
-            Kraber.handlePlayer(player);
+            //Kraber.handlePlayer(player);
 
             if (isInsidePortal(location) && !IntroEventManager.isInList(player.getUniqueId())) {
                 player.sendMessage("796F75");

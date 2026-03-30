@@ -44,6 +44,14 @@ public class BankAdminCommand extends TGCommand implements CommandExecutor {
                     Bank.saveBanks();
                 }
                 break;
+
+            case "save-banks":
+                Bank.saveBanks();
+                break;
+
+            case "load-banks":
+                Bank.loadBanks();
+                break;
         }
 
         return true;

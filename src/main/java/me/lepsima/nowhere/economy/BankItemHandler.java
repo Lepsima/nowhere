@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -19,7 +20,7 @@ import java.util.List;
 // It removes and gives/creates items on demand, on any inventory
 public class BankItemHandler {
     public static final int MAX_CURRENCY_VALUE = 500;
-    public static final int MAX_CURRENCY_STACK = 128;
+    public static final int MAX_CURRENCY_STACK = 99;
     private static final World WORLD = Bukkit.getWorld("world");
     private static final NamespacedKey CURRENCY_KEY = new NamespacedKey("nowhere", "currency");
 
@@ -42,7 +43,7 @@ public class BankItemHandler {
         ));
 
         // Set custom tag
-        meta.getPersistentDataContainer().set(CURRENCY_KEY, PersistentDataType.INTEGER, 1);
+        meta.getPersistentDataContainer().set(CURRENCY_KEY, PersistentDataType.INTEGER, value);
         item.setItemMeta(meta);
 
         return item;
@@ -50,38 +51,16 @@ public class BankItemHandler {
 
     // Give money to an inventory
     public static void giveCurrency(Inventory inventory, int amount) {
-        int fullValueItems = amount / MAX_CURRENCY_VALUE;
-        int remainder = amount % MAX_CURRENCY_VALUE;
-
-        int fullValueStacks = fullValueItems / MAX_CURRENCY_STACK;
-        int remainderStack = fullValueItems % MAX_CURRENCY_STACK;
-
-        int stackCount = fullValueStacks + Math.min(remainderStack, 1) + Math.min(remainder, 1);
-        int index = 0;
-        ItemStack[] stacks = new ItemStack[stackCount];
+        int fullValueItems = amount / MAX_CURRENCY_VALUE; // Amount of maxvalue items
+        int remainder = amount % MAX_CURRENCY_VALUE;      // Money remainder
 
         if (fullValueItems != 0) {
-            // Generate full stacks of full value papers
-            if (fullValueStacks != 0) {
-                for (int i = 0; i < fullValueStacks; i++) {
-                    stacks[index] = generateCurrency(MAX_CURRENCY_VALUE, MAX_CURRENCY_STACK);
-                    index++;
-                }
-            }
-
-            // Generate incomplete stack of full value papers
-            if (remainderStack != 0) {
-                stacks[index] = generateCurrency(MAX_CURRENCY_VALUE, remainderStack);
-                index++;
-            }
+            giveItems(inventory, new ItemStack[] { generateCurrency(fullValueItems, MAX_CURRENCY_VALUE) });
         }
 
-        // Add a singular item with the reminder value
         if (remainder != 0) {
-            stacks[index] = generateCurrency(remainder, 1);
+            giveItems(inventory, new ItemStack[] { generateCurrency(1, remainder) });
         }
-
-        giveItems(inventory, stacks);
     }
 
     // Give resources to an inventory
@@ -113,7 +92,7 @@ public class BankItemHandler {
         int total = 0;
 
         for (ItemStack stack : contents) {
-            if (stack.getType() == material) {
+            if (stack != null && stack.getType() == material) {
                 total += stack.getAmount();
             }
         }
@@ -127,6 +106,10 @@ public class BankItemHandler {
         int total = 0;
 
         for (ItemStack stack : contents) {
+            if (stack == null) {
+                continue;
+            }
+
             int stackAmount = stack.getAmount();
             int itemValue = getCurrencyValue(stack);
             total += stackAmount * itemValue;
@@ -145,7 +128,7 @@ public class BankItemHandler {
             ItemStack stack = contents[index];
             index++;
 
-            if (stack.getType() == material) {
+            if (stack != null && stack.getType() == material) {
                 int stackAmount = stack.getAmount();
                 stack.subtract(remaining);
                 remaining -= stackAmount;
@@ -167,6 +150,10 @@ public class BankItemHandler {
         while (remaining > 0 && index < contents.length) {
             ItemStack stack = contents[index];
             index++;
+
+            if (stack == null) {
+                continue;
+            }
 
             // Get value of item and amount of items
             int stackAmount = stack.getAmount();

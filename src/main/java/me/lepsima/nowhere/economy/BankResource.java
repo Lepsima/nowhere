@@ -51,7 +51,7 @@ public class BankResource {
     // How much it would cost to buy 1 material at "stock" amount of stock
     public double getBuyValueAt(int stock) {
         if (stock < 1) return Integer.MAX_VALUE;
-        return (double)initialStock / initialValue * stock;
+        return (double)initialStock / stock * initialValue;
     }
 
     // How much you would get when selling 1 material at "stock" amount of stock
@@ -69,7 +69,9 @@ public class BankResource {
         while (true) {
             double value = getBuyValueAt(stock - amount);
             if (value > remainingBudget) break;
+
             remainingBudget -= value;
+            amount++;
         }
 
         return new Vector2i((int)Math.ceil(budget - remainingBudget), amount);
