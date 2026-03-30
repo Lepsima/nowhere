@@ -65,7 +65,6 @@ public class ExchangeSiteData {
     // Returns: (Exact budget needed, Bought item count)
     public Vector2i getCurrencyValue() {
         int budget = BankItemHandler.countCurrency(inventory);
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "tellraw @a \"test: " + budget + "\"");
         int stock = resource.currentStock;
         return resource.getBuyRoundedBudget(stock, budget);
     }

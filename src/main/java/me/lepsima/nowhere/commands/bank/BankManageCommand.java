@@ -9,6 +9,8 @@ import org.bukkit.entity.Player;
 import me.lepsima.nowhere.TGCommand;
 import me.lepsima.nowhere.economy.Bank;
 
+import java.util.Collection;
+
 public class BankManageCommand extends TGCommand implements CommandExecutor {
     public BankManageCommand(String command) {
         super(command);
@@ -23,11 +25,15 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
         }
 
         Player player = (Player)sender;
-        Material material = Material.getMaterial(args[3]);
+        Material material = null;
 
-        if (material == null) {
-            sender.sendMessage("Invalid material");
-            return true;
+        if (!args[2].equals("view-stock") && !args[2].equals("view-cost")) {
+            material = Material.getMaterial(args[3]);
+
+            if (material == null) {
+                sender.sendMessage("Invalid material");
+                return true;
+            }
         }
 
         switch (args[2]) {
@@ -50,6 +56,39 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
                 bank.deleteResource(material);
                 break;
 
+            case "view-stock": {
+                Collection<BankResource> resources = bank.getAllResources();
+                sender.sendMessage("Resources found: " + resources.size());
+
+                for (BankResource res : resources) {
+                    String matName = res.material.toString();
+                    int stock = res.initialStock;
+                    int value = res.initialValue;
+                    int curStock = res.currentStock;
+
+                    String msg = "%s -> Current stock: %s, Initial Stock/Value: %s/%s";
+                    sender.sendMessage(String.format(msg, matName, stock, value, curStock));
+                }
+
+                break;
+            }
+
+            case "view-cost": {
+                Collection<BankResource> resources = bank.getAllResources();
+                sender.sendMessage("Resources found: " + resources.size());
+
+                for (BankResource res : resources) {
+                    String matName = res.material.toString();
+                    int stock = res.currentStock;
+                    int buyValue =  (int)Math.ceil(res.getBuyValueAt(stock));
+                    int sellValue = (int)Math.ceil(res.getSellValueAt(stock));
+
+                    int value = Math.max(buyValue, sellValue);
+                    sender.sendMessage(String.format("%s -> Value: %s, Stock: %s", matName, value, stock));
+                }
+
+                break;
+            }
 
             // restock a bank resource (used by the owner)
             case "add-stock": {
@@ -66,6 +105,7 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
                     sender.sendMessage("Invalid amount " + e);
                     return true;
                 }
+
                 break;
             }
 
@@ -84,6 +124,7 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
                     sender.sendMessage("Invalid amount " + e);
                     return true;
                 }
+
                 break;
             }
         }

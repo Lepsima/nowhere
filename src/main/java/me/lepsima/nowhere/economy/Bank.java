@@ -122,4 +122,8 @@ public class Bank implements ConfigurationSerializable {
     public BankResource getResource(Material material) {
         return resources.get(material);
     }
+
+    public Collection<BankResource> getAllResources() {
+        return resources.values();
+    }
 }
