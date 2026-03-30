@@ -162,6 +162,7 @@ public class BankItemHandler {
             // Remove necessary amount of items if the value is not zero
             if (itemValue != 0) {
                 int removeItems = Math.min(Math.ceilDiv(remaining, itemValue), stackAmount);
+                stack.subtract(removeItems);
                 remaining -= removeItems * itemValue;
             }
         }
