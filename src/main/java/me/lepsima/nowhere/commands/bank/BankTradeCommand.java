@@ -1,5 +1,6 @@
 package me.lepsima.nowhere.commands.bank;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -34,15 +35,15 @@ public class BankTradeCommand extends TGCommand implements CommandExecutor {
         switch (args[1]) {
             case "see-money": {
                 Vector2i data = site.getMaterialValue();
-                sender.sendMessage("COST: " + data.x);
-                sender.sendMessage("RETURN: " + data.y);
+                String msg = "tellraw @p \"You give: " + data.x + " items, You get: $" + data.y + "\"";
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), msg);
                 break;
             }
 
             case "see-material": {
                 Vector2i data = site.getCurrencyValue();
-                sender.sendMessage("COST: " + data.x);
-                sender.sendMessage("RETURN: " + data.y);
+                String msg = "tellraw @p \"You give: $" + data.x + ", You get: " + data.y + " items\"";
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), msg);
                 break;
             }
 

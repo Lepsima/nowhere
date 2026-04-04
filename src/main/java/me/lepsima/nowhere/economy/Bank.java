@@ -3,6 +3,7 @@ package me.lepsima.nowhere.economy;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jspecify.annotations.NonNull;
 import me.lepsima.nowhere.Main;
@@ -21,17 +22,20 @@ public class Bank implements ConfigurationSerializable {
     private final String password;
     private final double interest;
 
+    private double balance;
+
     private final HashMap<Material, BankResource> resources = new HashMap<>();
 
     // Create new bank instance
-    public Bank(String name, String password, double interest, List<String> resources) {
+    public Bank(String name, String password, double interest, double balance, List<String> resources) {
         this.name = name;
         this.password = password;
         this.interest = interest;
+        this.balance = balance;
 
         // Import resources, optional
         for (String str : resources) {
-            BankResource resource = BankResource.fromString(str);
+            BankResource resource = BankResource.fromString(this, str);
             this.resources.put(resource.material, resource);
         }
     }
@@ -92,6 +96,7 @@ public class Bank implements ConfigurationSerializable {
         data.put("name", this.name);
         data.put("password", this.password);
         data.put("interest", this.interest);
+        data.put("balance", this.balance);
         data.put("resources", resourceList);
 
         return data;
@@ -103,14 +108,37 @@ public class Bank implements ConfigurationSerializable {
         String name = (String)args.get("name");
         String password = (String)args.get("password");
         double interest = (double)args.get("interest");
+        double balance = (double)args.get("balance");
         List<String> resourceList = (List<String>)args.get("resources");
 
-        return new Bank(name, password, interest, resourceList);
+        return new Bank(name, password, interest, balance, resourceList);
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void changeBalance(double amount) {
+        balance += amount;
+    }
+
+    public void addBalance(Inventory inventory, int amount) {
+        int inventoryValue = BankItemHandler.countCurrency(inventory);
+        int budget = Math.min(inventoryValue, amount);
+
+        BankItemHandler.removeCurrency(inventory, budget);
+        changeBalance(budget);
+    }
+
+    public void removeBalance(Inventory inventory, int amount) {
+        int budget = Math.min((int)balance, amount);
+        BankItemHandler.giveCurrency(inventory, budget);
+        changeBalance(-budget);
     }
 
     // Create a new resource stock for a new material
     public void createResource(Material material, int initialValue, int initialStock) {
-        resources.put(material, new BankResource(material, initialValue, initialStock));
+        resources.put(material, new BankResource(this, material, initialValue, initialStock));
     }
 
     // Delete the bank's stock for this material

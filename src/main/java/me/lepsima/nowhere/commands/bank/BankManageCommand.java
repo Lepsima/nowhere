@@ -25,34 +25,31 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
         }
 
         Player player = (Player)sender;
-        Material material = null;
 
-        if (!args[2].equals("view-stock") && !args[2].equals("view-cost")) {
-            material = Material.getMaterial(args[3]);
+        int arg4 = 0;
+        int arg5 = 0;
 
-            if (material == null) {
-                sender.sendMessage("Invalid material");
-                return true;
-            }
+        try {
+            if (args.length > 4) arg4 = Integer.parseInt(args[4]);
+            if (args.length > 5) arg5 = Integer.parseInt(args[5]);
+
+        } catch (Exception e) {
+            sender.sendMessage("Bad value parameters, error parsing");
+            return true;
         }
 
         switch (args[2]) {
             // Make the bank trade a new item
-            case "new-resource":
-                try {
-                    int initialValue = Integer.parseInt(args[4]);
-                    int initialStock = Integer.parseInt(args[5]);
-                    bank.createResource(material, initialValue, initialStock);
-
-                } catch (Exception e) {
-                    sender.sendMessage("Incorrect arguments for adding a new resource");
-                    return true;
-                }
-
+            case "new-resource": {
+                Material material = getMaterial(args[3]);
+                bank.createResource(material, arg4, arg5);
                 break;
+            }
 
             // Remove an item trade from the bank
             case "remove-resource": {
+                Material material = getMaterial(args[3]);
+
                 BankResource resource = bank.getResource(material);
                 if (resource == null) break;
 
@@ -75,8 +72,8 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
                     int value = res.initialValue;
                     int curStock = res.currentStock;
 
-                    String msg = "%s -> Current stock: %s, Initial Stock/Value: %s/%s";
-                    sender.sendMessage(String.format(msg, matName, stock, value, curStock));
+                    String msg = "%s -> Current stock: %s,   Ideal Stock/Value: %s/%s";
+                    sender.sendMessage(String.format(msg, matName, curStock, value, stock));
                 }
 
                 break;
@@ -89,55 +86,68 @@ public class BankManageCommand extends TGCommand implements CommandExecutor {
                 for (BankResource res : resources) {
                     String matName = res.material.toString();
                     int stock = res.currentStock;
-                    int buyValue =  (int)Math.ceil(res.getBuyValueAt(stock));
-                    int sellValue = (int)Math.ceil(res.getSellValueAt(stock));
+                    int buyValue = (int) Math.ceil(res.getBuyValueAt(stock));
+                    int sellValue = (int) Math.ceil(res.getSellValueAt(stock));
 
                     int value = Math.max(buyValue, sellValue);
-                    sender.sendMessage(String.format("%s -> Value: %s, Stock: %s", matName, value, stock));
-                }
-
-                break;
-            }
-
-            // restock a bank resource (used by the owner)
-            case "add-stock": {
-                if (player == null) {
-                    return true;
-                }
-
-                try {
-                    int amount = Integer.parseInt(args[4]);
-                    BankResource resource = bank.getResource(material);
-                    resource.addStock(player.getInventory(), amount);
-
-                } catch (Exception e) {
-                    sender.sendMessage("Invalid amount " + e);
-                    return true;
-                }
-
-                break;
-            }
-
-            // get stock back from a bank resource (used by the owner)
-            case "remove-stock": {
-                if (player == null) {
-                    return true;
-                }
-
-                try {
-                    int amount = Integer.parseInt(args[4]);
-                    BankResource resource = bank.getResource(material);
-                    resource.removeStock(player.getInventory(), amount);
-
-                } catch (Exception e) {
-                    sender.sendMessage("Invalid amount " + e);
-                    return true;
+                    sender.sendMessage(String.format("%s -> Value: %s,   Stock: %s", matName, value, stock));
                 }
 
                 break;
             }
         }
 
+        if (player == null) {
+            return true;
+        }
+
+        try {
+            switch (args[2]) {
+                case "add-balance": {
+                    int amount = Integer.parseInt(args[3]);
+                    bank.addBalance(player.getInventory(), amount);
+                    break;
+                }
+
+                case "remove-balance": {
+                    int amount = Integer.parseInt(args[3]);
+                    bank.removeBalance(player.getInventory(), amount);
+                    break;
+                }
+
+                // restock a bank resource (used by the owner)
+                case "add-stock": {
+                    Material material = getMaterial(args[3]);
+                    BankResource resource = bank.getResource(material);
+                    resource.addStock(player.getInventory(), arg4);
+                    break;
+                }
+
+                // get stock back from a bank resource (used by the owner)
+                case "remove-stock": {
+                    Material material = getMaterial(args[3]);
+                    BankResource resource = bank.getResource(material);
+                    resource.removeStock(player.getInventory(), arg4);
+                    break;
+                }
+            }
+
+        } catch (NumberFormatException e) {
+            sender.sendMessage("Invalid amount " + e);
+            return true;
+        }
+
+
         return true;
+    }
+
+    public Material getMaterial(String arg) {
+        Material material = Material.getMaterial(arg);
+
+        if (material == null) {
+            throw new RuntimeException("Invalid material");
+        }
+
+        return material;
     }
 }

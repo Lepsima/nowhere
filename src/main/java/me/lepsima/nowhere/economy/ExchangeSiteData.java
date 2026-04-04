@@ -65,9 +65,13 @@ public class ExchangeSiteData {
     // Returns: (Sold item count, Exact currency given)
     public Vector2i getMaterialValue() {
         int stock = resource.currentStock;
-        int materials = BankItemHandler.countMaterials(inventory, resource.material);
-        int value = resource.getSellValueAtRange(stock, materials);
-        return new Vector2i(materials, value);
+        int materialsBudget = BankItemHandler.countMaterials(inventory, resource.material);
+
+        Vector2i data = resource.getSellValueAtRange(stock, materialsBudget);
+        int soldMaterials = data.x;
+        int givenMoney = data.y;
+
+        return new Vector2i(soldMaterials, givenMoney);
     }
 
     // Returns how many materials the bank gives you, and exactly how much they will cost (to calculate reminder)
@@ -85,6 +89,7 @@ public class ExchangeSiteData {
 
         // Remove money
         BankItemHandler.removeCurrency(inventory, data.x);
+        bank.changeBalance(data.x);
 
         // Give materials
         BankItemHandler.giveMaterials(inventory, resource.material, data.y);
@@ -102,5 +107,6 @@ public class ExchangeSiteData {
 
         // Give money
         BankItemHandler.giveCurrency(inventory, data.y);
+        bank.changeBalance(-data.y);
     }
 }

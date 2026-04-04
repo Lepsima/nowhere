@@ -7,16 +7,18 @@ import org.joml.Vector2i;
 // This keeps track of how much of a certain material a bank has
 // It provides prices and return count at many stock amounts
 public class BankResource {
+    public final Bank bank;
     public final Material material;
     public final int initialValue;
     public final int initialStock;
     public int currentStock;
 
-    public BankResource(Material material, int initialValue, int initialStock) {
-        this(material, initialValue, initialStock, 0);
+    public BankResource(Bank bank, Material material, int initialValue, int initialStock) {
+        this(bank, material, initialValue, initialStock, 0);
     }
 
-    public BankResource(Material material, int initialValue, int initialStock, int currentStock) {
+    public BankResource(Bank bank, Material material, int initialValue, int initialStock, int currentStock) {
+        this.bank = bank;
         this.material = material;
         this.initialValue = initialValue;
         this.initialStock = initialStock;
@@ -79,21 +81,27 @@ public class BankResource {
 
     // Sell "amount" times this material, starting at "stock" amount of stock
     // Returns: 2 ints (Amount sold, money given for it)
-    public int getSellValueAtRange(int stock, int amount) {
+    public Vector2i getSellValueAtRange(int stock, int amount) {
         double cost = 0;
+        int sold = 0;
+
         for (int i = 0; i < amount; i++) {
-            cost += getSellValueAt(stock + i);
+            double unitCost = getSellValueAt(stock + i);
+            if (bank.getBalance() < (cost + unitCost)) break;
+
+            cost += unitCost;
+            sold++;
         }
-        return (int)Math.ceil(cost);
+        return new Vector2i(sold, (int)Math.ceil(cost));
     }
 
     public String toString() {
         return material.name() + "," + initialValue + "," + initialStock + "," + currentStock;
     }
 
-    public static BankResource fromString(String str) {
+    public static BankResource fromString(Bank bank, String str) {
         String[] parts = str.split(",");
-        return new BankResource(
+        return new BankResource(bank,
                 Material.getMaterial(parts[0]),
                 Integer.parseInt(parts[1]),
                 Integer.parseInt(parts[2]),

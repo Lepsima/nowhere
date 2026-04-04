@@ -27,7 +27,7 @@ public class BankAdminCommand extends TGCommand implements CommandExecutor {
                         throw new Exception();
                     }
 
-                    Bank bank = new Bank(name, password, interest, new ArrayList<>());
+                    Bank bank = new Bank(name, password, interest, 0, new ArrayList<>());
                     Bank.ALL_BANKS.put(name, bank);
                     Bank.saveBanks();
 
