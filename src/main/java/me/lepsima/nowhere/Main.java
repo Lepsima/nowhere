@@ -1,5 +1,6 @@
 package me.lepsima.nowhere;
 
+import me.lepsima.nowhere.commands.bank.MoneyCommand;
 import me.lepsima.nowhere.commands.event.*;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
@@ -33,6 +34,7 @@ public class Main extends JavaPlugin implements Listener {
     public static final String BANK_ADMIN_CMD = "bankadmin";
     public static final String BANK_MANAGE_CMD = "bankmanage";
     public static final String BANK_TRADE_CMD = "banktrade";
+    public static final String MONEY_CMD = "money";
 
     private final Nowhere nowhere = new Nowhere(this);
 
@@ -57,6 +59,7 @@ public class Main extends JavaPlugin implements Listener {
                 new BankAdminCommand(BANK_ADMIN_CMD),
                 new BankManageCommand(BANK_MANAGE_CMD),
                 new BankTradeCommand(BANK_TRADE_CMD),
+                new MoneyCommand(MONEY_CMD),
         };
 
         for (TGCommand command : commands) {

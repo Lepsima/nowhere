@@ -31,6 +31,10 @@ commands:
     description: Trade
     usage: /banktrade
 
+  money:
+    description: Money utils
+    usage: /money
+
   joinevent:
     description: Participate in the event
     usage: /joinevent
