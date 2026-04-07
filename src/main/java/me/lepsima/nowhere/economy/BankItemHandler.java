@@ -19,7 +19,7 @@ import java.util.List;
 // This boi removes and gives items, he knows nothing about banks
 // It removes and gives/creates items on demand, on any inventory
 public class BankItemHandler {
-    public static final int MAX_CURRENCY_VALUE = 500;
+    public static final int MAX_CURRENCY_VALUE = 1000;
     public static final int MAX_CURRENCY_STACK = 99;
     private static final World WORLD = Bukkit.getWorld("world");
     private static final NamespacedKey CURRENCY_KEY = new NamespacedKey("nowhere", "currency");
