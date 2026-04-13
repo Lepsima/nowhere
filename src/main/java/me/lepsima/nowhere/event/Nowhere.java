@@ -45,8 +45,8 @@ public class Nowhere implements Listener {
 
     public Nowhere(JavaPlugin plugin) {
         Nowhere.Instance = this;
-        Nowhere.Kraber = new Kraber();
         Nowhere.Plugin = plugin;
+        Nowhere.Kraber = new Kraber();
 
         enterKey = new NamespacedKey(plugin, "enter_key");
         exitKey = new NamespacedKey(plugin, "exit_key");
@@ -55,24 +55,17 @@ public class Nowhere implements Listener {
     }
 
     public void onEnable() {
-        Bukkit.getScheduler().runTaskTimer(Nowhere.Plugin, Nowhere::periodicSearch, 0L, 20L);
+        Bukkit.getScheduler().runTaskTimer(Nowhere.Plugin, Nowhere::periodicSearch, 0L, 10L);
     }
 
     public static void periodicSearch() {
         Collection<? extends Player> players = Bukkit.getOnlinePlayers();
 
         int playerCount = players.size();
-        //Kraber.setPlayerCount(playerCount);
+        Kraber.setPlayerCount(playerCount);
 
         for (Player player : players) {
-            Location location = player.getLocation();
-            //Kraber.handlePlayer(player);
-
-            if (isInsidePortal(location) && !IntroEventManager.isInList(player.getUniqueId())) {
-                player.sendMessage("796F75");
-                IntroEventManager.addPlayer(player.getUniqueId());
-                Nowhere.Instance.teleport(player, false, true);
-            }
+            Kraber.handlePlayer(player);
         }
     }
 
@@ -93,14 +86,9 @@ public class Nowhere implements Listener {
         double y = loc.getY();
         double z = loc.getZ();
 
-        double minX = 0;
-        double maxX = 1;
-
-        double minY = 37;
-        double maxY = 41;
-
-        double minZ = -1;
-        double maxZ = 2;
+        double minX = 0, maxX = 1;
+        double minY = 37, maxY = 41;
+        double minZ = -1, maxZ = 2;
 
         boolean isInArea =
                 x >= minX && x <= maxX &&

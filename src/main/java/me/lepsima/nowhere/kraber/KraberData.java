@@ -1,5 +1,6 @@
 package me.lepsima.nowhere.kraber;
 
+import me.lepsima.nowhere.Cooldown;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -19,7 +20,6 @@ public class KraberData {
 
         int newViewDistance = Math.round(view);
         int newSimDistance = Math.round(sim);
-
 
         if (lastViewDistance != newViewDistance) {
             lastViewDistance = newViewDistance;
