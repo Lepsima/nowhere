@@ -38,7 +38,7 @@ public class Kraber {
         return Math.clamp(viewDistance, 2, 6);
     }
 
-    public float getVelocityModifier(double speed) {
+    public float getVelocityModifier(double speed) {asda
         if (speed < 4) return 1F;
         else if (speed < 10) return 0.75F;
         else if (speed < 35) return 0.5F;
